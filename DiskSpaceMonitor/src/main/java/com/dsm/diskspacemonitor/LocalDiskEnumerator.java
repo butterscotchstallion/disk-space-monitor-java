@@ -30,4 +30,10 @@ public class LocalDiskEnumerator {
 
         return drives;
     }
+
+    public ArrayList<LocalDiskDrive> getLowSpaceDrives(ArrayList<LocalDiskDrive> drives) {
+        return drives.stream()
+                    .filter(drive -> drive.percentDiskSpaceUsed >= 90)
+                    .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
+    }
 }

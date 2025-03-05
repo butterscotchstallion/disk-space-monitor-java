@@ -20,4 +20,15 @@ public class testLocalDiskEnumerator {
             log.info(drive.name + "; free space=" + drive.freeSpace + "; total space=" + drive.totalSpace + "; percentage used=" + drive.percentDiskSpaceUsed);
         }
     }
+
+    @Test
+    public void getLowSpaceDrives() {
+        LocalDiskEnumerator localDiskEnumerator = new LocalDiskEnumerator();
+        ArrayList<LocalDiskDrive> drives = localDiskEnumerator.getLocalDiskDrives();
+        LocalDiskDrive fakeLowSpaceDrive = new LocalDiskDrive("Fake drive", 1000000000000L, 1000000000000L, 100);
+        drives.add(fakeLowSpaceDrive);
+        ArrayList<LocalDiskDrive> lowSpaceDrives = localDiskEnumerator.getLowSpaceDrives(drives);
+        assertFalse(lowSpaceDrives.isEmpty());
+        assertTrue(lowSpaceDrives.contains(fakeLowSpaceDrive));
+    }
 }
