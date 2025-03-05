@@ -24,36 +24,25 @@ public class DSMApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(DSMApplication.class.getResource("hello-view.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-        stage.setTitle("Hello!");
-        //stage.setScene(scene);
-        //stage.show();
+        //FXMLLoader fxmlLoader = new FXMLLoader(DSMApplication.class.getResource("hello-view.fxml"));
+        //Scene scene = new Scene(fxmlLoader.load(), 320, 240);
+        stage.setTitle("Disk Space Monitor");
 
-        FXTrayIcon icon = new FXTrayIcon(stage, Objects.requireNonNull(getClass().getResource("disk_space_monitor_icon.png")));
-        icon.addExitItem("Exit");
-        icon.show();
+        FXTrayIcon icon = this.setSystemTrayIcon(stage);
 
         LocalDiskEnumerator localDiskEnumerator = new LocalDiskEnumerator();
         ArrayList<LocalDiskDrive> drives = localDiskEnumerator.getLocalDiskDrives();
         ArrayList<LocalDiskDrive> lowSpaceDrives = localDiskEnumerator.getLowSpaceDrives(drives);
-        if (!lowSpaceDrives.isEmpty()) {
-            log.info("Low space disks found: "+lowSpaceDrives.size());
-            StringBuilder warningMsg = new StringBuilder();
-            for (LocalDiskDrive drive : lowSpaceDrives) {
-                warningMsg.append(String.format("%s: %s%% used", drive.name, drive.percentDiskSpaceUsed));
-                warningMsg.append("\n");
-            }
-            icon.showWarningMessage(
-                    "Low space on disks",
-                    "There are " + lowSpaceDrives.size() + " low space disks: "+warningMsg
-            );
-            FlowGridPane pane = setUpPercentageTiles(lowSpaceDrives);
-            stage.setScene(pane.getScene());
-            stage.show();
+
+        if (lowSpaceDrives.isEmpty()) {
+            this.showWarningMessageForLowSpaceDrives(icon, lowSpaceDrives);
         } else {
-            log.info("No low space disks found.");
+            log.info("No drives with low space");
         }
+
+        FlowGridPane pane = setUpPercentageTiles(lowSpaceDrives);
+        stage.setScene(pane.getScene());
+        stage.show();
     }
 
     private FlowGridPane setUpPercentageTiles(ArrayList<LocalDiskDrive> drives) {
@@ -85,7 +74,34 @@ public class DSMApplication extends Application {
         return pane;
     }
 
+    private void showWarningMessageForLowSpaceDrives(FXTrayIcon icon, ArrayList<LocalDiskDrive> lowSpaceDrives) {
+        log.info("Low space disks found: " + lowSpaceDrives.size());
+        StringBuilder warningMsg = new StringBuilder();
+        for (LocalDiskDrive drive : lowSpaceDrives) {
+            warningMsg.append(String.format("%s: %s%% used", drive.name, drive.percentDiskSpaceUsed));
+            warningMsg.append("\n");
+        }
+        icon.showWarningMessage(
+                "Low space on disks",
+                "There are " + lowSpaceDrives.size() + " low space disks: " + warningMsg
+        );
+    }
+
+    private FXTrayIcon setSystemTrayIcon(Stage stage) {
+        FXTrayIcon icon = new FXTrayIcon(
+                stage,
+                Objects.requireNonNull(getClass().getResource("disk_space_monitor_icon.png"))
+        );
+        icon.addExitItem("Exit");
+        icon.show();
+        return icon;
+    }
+
     public static void main(String[] args) {
         launch();
+    }
+
+    @Override public void stop() {
+        System.exit(0);
     }
 }
