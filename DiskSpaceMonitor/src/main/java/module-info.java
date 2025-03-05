@@ -1,5 +1,4 @@
 module com.dsm.diskspacemonitor {
-    requires javafx.controls;
     requires javafx.fxml;
     requires javafx.web;
 
@@ -8,8 +7,9 @@ module com.dsm.diskspacemonitor {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires static lombok;
-    requires java.desktop;
     requires java.logging;
+    requires com.dustinredmond.fxtrayicon;
+    requires java.desktop;
 
     opens com.dsm.diskspacemonitor to javafx.fxml;
     exports com.dsm.diskspacemonitor;
