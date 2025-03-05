@@ -28,7 +28,7 @@ public class DSMApplication extends Application {
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
         stage.setTitle("Hello!");
         //stage.setScene(scene);
-        stage.show();
+        //stage.show();
 
         FXTrayIcon icon = new FXTrayIcon(stage, Objects.requireNonNull(getClass().getResource("disk_space_monitor_icon.png")));
         icon.addExitItem("Exit");
@@ -38,7 +38,7 @@ public class DSMApplication extends Application {
         ArrayList<LocalDiskDrive> drives = localDiskEnumerator.getLocalDiskDrives();
         ArrayList<LocalDiskDrive> lowSpaceDrives = localDiskEnumerator.getLowSpaceDrives(drives);
         if (!lowSpaceDrives.isEmpty()) {
-            log.info("Low space disks found: {}");
+            log.info("Low space disks found: "+lowSpaceDrives.size());
             StringBuilder warningMsg = new StringBuilder();
             for (LocalDiskDrive drive : lowSpaceDrives) {
                 warningMsg.append(String.format("%s: %s%% used", drive.name, drive.percentDiskSpaceUsed));
@@ -48,33 +48,41 @@ public class DSMApplication extends Application {
                     "Low space on disks",
                     "There are " + lowSpaceDrives.size() + " low space disks: "+warningMsg
             );
-            setUpPercentageTiles(lowSpaceDrives);
+            FlowGridPane pane = setUpPercentageTiles(lowSpaceDrives);
+            stage.setScene(pane.getScene());
+            stage.show();
         } else {
             log.info("No low space disks found.");
         }
     }
 
-    private void setUpPercentageTiles(ArrayList<LocalDiskDrive> drives) {
-        //ArrayList<Tile> driveTiles = new ArrayList<>();
+    private FlowGridPane setUpPercentageTiles(ArrayList<LocalDiskDrive> drives) {
+        FlowGridPane pane = new FlowGridPane(1, drives.size());
+        pane.setHgap(5);
+        pane.setVgap(5);
+        pane.setAlignment(Pos.CENTER);
+        pane.setCenterShape(true);
+        pane.setPadding(new Insets(5));
+        pane.setBackground(
+                new Background(
+                        new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY)
+                )
+        );
         drives.forEach(drive -> {
-            Tile percentageTile = TileBuilder.create()
+            Tile percentageTile = TileBuilder
+                    .create()
                     .skinType(Tile.SkinType.PERCENTAGE)
                     .prefSize(200, 200)
-                    .title("Percentage Tile")
+                    .title(drive.getName())
                     .unit("%")
-                    .description("Test")
-                    .maxValue(60)
+                    .description("Free Space")
+                    .maxValue(100)
                     .build();
             percentageTile.setValue(drive.percentDiskSpaceUsed);
-            //driveTiles.add(percentageTile);
-            FlowGridPane pane = new FlowGridPane(1, 1, percentageTile);
-            pane.setHgap(5);
-            pane.setVgap(5);
-            pane.setAlignment(Pos.CENTER);
-            pane.setCenterShape(true);
-            pane.setPadding(new Insets(5));
-            pane.setBackground(new Background(new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY)));
+            pane.getChildren().add(percentageTile);
+            log.info("Added tile for drive " + drive.getName() + " with " + drive.percentDiskSpaceUsed + "% used.");
         });
+        return pane;
     }
 
     public static void main(String[] args) {
