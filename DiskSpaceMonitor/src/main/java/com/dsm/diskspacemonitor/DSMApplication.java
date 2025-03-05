@@ -79,6 +79,8 @@ public class DSMApplication extends Application {
                     .unit("%")
                     .description("Space Used")
                     .maxValue(100)
+                    .autoScale(true)
+                    .barColor(drive.percentDiskSpaceUsed < 90 ? Color.GREEN : Color.RED)
                     .build();
             colorTile.setValue(drive.percentDiskSpaceUsed);
             pane.getChildren().add(colorTile);
