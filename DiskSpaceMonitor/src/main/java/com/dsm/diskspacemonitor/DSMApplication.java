@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class DSMApplication extends Application {
+    private static final java.util.logging.Logger log = java.util.logging.Logger.getLogger(DSMApplication.class.getName());
+
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(DSMApplication.class.getResource("hello-view.fxml"));
@@ -27,7 +29,18 @@ public class DSMApplication extends Application {
         ArrayList<LocalDiskDrive> drives = localDiskEnumerator.getLocalDiskDrives();
         ArrayList<LocalDiskDrive> lowSpaceDrives = localDiskEnumerator.getLowSpaceDrives(drives);
         if (!lowSpaceDrives.isEmpty()) {
-            icon.showWarningMessage("Low space on disks", "There are " + lowSpaceDrives.size() + " low space disks");
+            log.info("Low space disks found: {}");
+            StringBuilder warningMsg = new StringBuilder();
+            for (LocalDiskDrive drive : lowSpaceDrives) {
+                warningMsg.append(String.format("%s: %s%% used", drive.name, drive.percentDiskSpaceUsed));
+                warningMsg.append("\n");
+            }
+            icon.showWarningMessage(
+                    "Low space on disks",
+                    "There are " + lowSpaceDrives.size() + " low space disks: "+warningMsg
+            );
+        } else {
+            log.info("No low space disks found.");
         }
     }
 
