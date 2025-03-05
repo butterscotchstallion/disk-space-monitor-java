@@ -77,7 +77,7 @@ public class DSMApplication extends Application {
                     .prefSize(655, 192)
                     .title(drive.getName())
                     .unit("%")
-                    .description("Free Space")
+                    .description("Space Used")
                     .maxValue(100)
                     .build();
             colorTile.setValue(drive.percentDiskSpaceUsed);
