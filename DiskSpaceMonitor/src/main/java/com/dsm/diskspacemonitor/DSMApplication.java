@@ -8,6 +8,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -24,8 +25,6 @@ public class DSMApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        //FXMLLoader fxmlLoader = new FXMLLoader(DSMApplication.class.getResource("hello-view.fxml"));
-        //Scene scene = new Scene(fxmlLoader.load(), 320, 240);
         stage.setTitle("Disk Space Monitor");
 
         FXTrayIcon icon = this.setSystemTrayIcon(stage);
@@ -40,8 +39,13 @@ public class DSMApplication extends Application {
             log.info("No drives with low space");
         }
 
-        FlowGridPane pane = setUpPercentageTiles(lowSpaceDrives);
-        stage.setScene(pane.getScene());
+        PerspectiveCamera camera = new PerspectiveCamera();
+        camera.setFieldOfView(10);
+
+        FlowGridPane pane = setUpPercentageTiles(drives);
+        Scene scene = new Scene(pane);
+        scene.setCamera(camera);
+        stage.setScene(scene);
         stage.show();
     }
 
@@ -54,21 +58,30 @@ public class DSMApplication extends Application {
         pane.setPadding(new Insets(5));
         pane.setBackground(
                 new Background(
-                        new BackgroundFill(Color.web("#101214"), CornerRadii.EMPTY, Insets.EMPTY)
+                        new BackgroundFill(Color.web("#11080B"), CornerRadii.EMPTY, Insets.EMPTY)
                 )
         );
         drives.forEach(drive -> {
-            Tile percentageTile = TileBuilder
+            /*Tile percentageTile = TileBuilder
                     .create()
                     .skinType(Tile.SkinType.PERCENTAGE)
-                    .prefSize(500, 500)
+                    .prefSize(500, 200)
+                    .title(drive.getName())
+                    .unit("%")
+                    .description("Free Space")
+                    .maxValue(100)
+                    .build();*/
+            Tile colorTile = TileBuilder
+                    .create()
+                    .skinType(Tile.SkinType.PERCENTAGE)
+                    .prefSize(655, 192)
                     .title(drive.getName())
                     .unit("%")
                     .description("Free Space")
                     .maxValue(100)
                     .build();
-            percentageTile.setValue(drive.percentDiskSpaceUsed);
-            pane.getChildren().add(percentageTile);
+            colorTile.setValue(drive.percentDiskSpaceUsed);
+            pane.getChildren().add(colorTile);
             log.info("Added tile for drive " + drive.getName() + " with " + drive.percentDiskSpaceUsed + "% used.");
         });
         return pane;
