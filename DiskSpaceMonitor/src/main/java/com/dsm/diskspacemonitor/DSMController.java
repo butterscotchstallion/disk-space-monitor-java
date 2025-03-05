@@ -3,7 +3,7 @@ package com.dsm.diskspacemonitor;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 
-public class HelloController {
+public class DSMController {
     @FXML
     private Label welcomeText;
 
