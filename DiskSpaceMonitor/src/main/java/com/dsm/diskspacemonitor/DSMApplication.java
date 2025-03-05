@@ -61,7 +61,7 @@ public class DSMApplication extends Application {
             Tile percentageTile = TileBuilder
                     .create()
                     .skinType(Tile.SkinType.PERCENTAGE)
-                    .prefSize(200, 200)
+                    .prefSize(500, 500)
                     .title(drive.getName())
                     .unit("%")
                     .description("Free Space")
